@@ -1,7 +1,70 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
+import Cookies from "js-cookie";
 
 export default function App() {
+  const [keyEntered, setKeyEntered] = useState(false);
+  const [keyInput, setKeyInput] = useState("");
+  const [correctKey, setCorrectKey] = useState(null);
+
+  useEffect(() => {
+    const fetchKey = async () => {
+      try {
+        const response = await fetch("https://raw.githubusercontent.com/MrEuwn/mcgogov2/main/key", {
+          cache: "no-store", // Ensure the request bypasses any cache
+        });
+        if (!response.ok) {
+          throw new Error("Failed to fetch key");
+        }
+        const key = await response.text();
+        const trimmedKey = key.trim(); // Ensure the key is trimmed
+
+        // Update the cookie with the latest key
+        Cookies.set("accessKey", trimmedKey, { expires: 1 });
+
+        // Log the fetched key and the cookie value for debugging
+        console.log("Fetched key on load:", trimmedKey);
+        console.log("Cookie value on load:", Cookies.get("accessKey"));
+
+        setCorrectKey(trimmedKey);
+      } catch (error) {
+        console.error("Error fetching key on load:", error);
+        alert("Failed to fetch the access key. Please check your connection or try again later.");
+      }
+    };
+
+    fetchKey();
+  }, []);
+
+  const handleKeySubmit = async () => {
+    try {
+      const response = await fetch("https://raw.githubusercontent.com/MrEuwn/mcgogov2/main/key", {
+        cache: "no-store", // Ensure the request bypasses any cache
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch key");
+      }
+      const key = await response.text();
+      const trimmedKey = key.trim(); // Ensure the key is trimmed
+
+      // Update the cookie with the latest key
+      Cookies.set("accessKey", trimmedKey, { expires: 1 });
+
+      // Log the fetched key and the cookie value for debugging
+      console.log("Fetched key:", trimmedKey);
+      console.log("Cookie value:", Cookies.get("accessKey"));
+
+      if (keyInput === trimmedKey) {
+        setKeyEntered(true);
+      } else {
+        alert("Invalid key. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error fetching key:", error);
+      alert("Failed to fetch the access key. Please check your connection or try again later.");
+    }
+  };
+
   // --- Input state ---
   const [inputPlayers, setInputPlayers] = useState(["", "", "", "", "", "", ""]);
   const [players, setPlayers] = useState([]);
@@ -142,6 +205,18 @@ export default function App() {
     setRotationStarted(false);
   };
 
+  const resetToNameInput = () => {
+    setInputPlayers(["", "", "", "", "", "", ""]);
+    setPlayers([]);
+    setNamesConfirmed(false);
+    setSequence([]);
+    setIdx(0);
+    setKoList([]);
+    setNextLabel(null);
+    setRotationStarted(false);
+    setCurrentPlayerIndex(0);
+  };
+
   const handlePlayerNameSubmit = () => {
     if (currentPlayerIndex < 6) {
       setCurrentPlayerIndex(currentPlayerIndex + 1);
@@ -165,6 +240,47 @@ export default function App() {
       setRotationStarted(true);
     }
   };
+
+  if (correctKey === null) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-700 to-blue-500 flex items-center justify-center p-6">
+        <div className="bg-white/6 backdrop-blur-xl p-6 rounded-2xl shadow-2xl w-full max-w-md border border-white/10">
+          <h1 className="text-2xl sm:text-3xl font-bold text-white text-center mb-4">Loading...</h1>
+        </div>
+      </div>
+    );
+  }
+
+  if (!keyEntered) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-700 to-blue-500 flex items-center justify-center p-6">
+        <div className="bg-white/6 backdrop-blur-xl p-6 rounded-2xl shadow-2xl w-full max-w-md border border-white/10">
+          <h1 className="text-2xl sm:text-3xl font-bold text-white text-center mb-4">Enter Access Key</h1>
+          <input
+            type="text"
+            value={keyInput}
+            onChange={(e) => setKeyInput(e.target.value)}
+            placeholder="Enter key"
+            className="w-full p-3 rounded-md bg-white/10 text-white placeholder-white/50 focus:outline-none"
+          />
+          <button
+            onClick={handleKeySubmit}
+            className="mt-4 w-full p-3 bg-green-500 text-white rounded-md font-semibold"
+          >
+            Submit
+          </button>
+          <a
+            href="https://raw.githubusercontent.com/MrEuwn/mcgogov2/main/key"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block mt-4 text-center text-blue-300 hover:underline"
+          >
+            View Key on GitHub
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-700 to-blue-500 flex items-center justify-center p-6">
@@ -206,14 +322,14 @@ export default function App() {
               <motion.div initial={{ scale: 0.98 }} animate={{ scale: 1 }} className="w-full max-w-full sm:max-w-xl bg-white/6 p-6 rounded-2xl text-center">
                 <div className="text-sm text-white/70 mb-2">Lawan Selanjutnya</div>
                 <motion.div
-  key={nextLabel}
-  initial={{ opacity: 0, y: 8 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.3 }}
-  className="text-2xl sm:text-3xl text-white font-extrabold mb-4"
->
-  {nextLabel ?? upcomingPreview ?? "-"}
-</motion.div>
+                  key={nextLabel}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="text-2xl sm:text-3xl text-white font-extrabold mb-4"
+                >
+                  {nextLabel ?? upcomingPreview ?? "-"}
+                </motion.div>
                 <div className="flex justify-center gap-3">
                   <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={handleNext} className="px-6 py-3 bg-green-500 text-white rounded-lg font-semibold">Next</motion.button>
                 </div>
@@ -241,6 +357,16 @@ export default function App() {
                 </ol>
               </div>
 
+              <div className="flex justify-center mt-4">
+                <motion.button
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={resetToNameInput}
+                  className="px-6 py-3 bg-blue-500 text-white rounded-lg font-semibold"
+                >
+                  Predict Again
+                </motion.button>
+              </div>
 
               <div className="mt-4 text-sm text-white/70">{namesConfirmed ? "Nama pemain terdaftar: " + players.join(", ") : "Belum ada pemain"}</div>
             </div>
