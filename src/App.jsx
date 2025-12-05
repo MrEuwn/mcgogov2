@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 
@@ -7,6 +6,7 @@ export default function App() {
   const [inputPlayers, setInputPlayers] = useState(["", "", "", "", "", "", ""]);
   const [players, setPlayers] = useState([]);
   const [namesConfirmed, setNamesConfirmed] = useState(false);
+  const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
 
   // Rotation engine state
   const [sequence, setSequence] = useState([]); // array of { id, type, name }
@@ -142,6 +142,30 @@ export default function App() {
     setRotationStarted(false);
   };
 
+  const handlePlayerNameSubmit = () => {
+    if (currentPlayerIndex < 6) {
+      setCurrentPlayerIndex(currentPlayerIndex + 1);
+    } else {
+      // Prediction logic after all names are entered
+      const filtered = inputPlayers.map(name => name.trim()).filter(Boolean);
+      if (filtered.length < 7) {
+        alert("Minimal 7 nama harus diisi.");
+        return;
+      }
+      setPlayers(filtered);
+      setNamesConfirmed(true);
+      const seq = generateSequence(filtered, 500);
+      setSequence(seq);
+      const startAt = seq.findIndex(e => e.id === "2.6");
+      const startIndex = startAt >= 0 ? startAt : 0;
+      const cand = computeCandidateAt(startIndex, seq, []);
+      setIdx(cand.nextIndex);
+      setNextLabel(cand.label);
+      setKoList([]);
+      setRotationStarted(true);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-700 to-blue-500 flex items-center justify-center p-6">
       <motion.div
@@ -154,23 +178,25 @@ export default function App() {
 
         {!namesConfirmed ? (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-            <h2 className="text-lg text-white mb-3">Masukkan 7 nama lawan</h2>
-            <div className="space-y-2">
-              {Array.from({ length: 7 }).map((_, i) => (
-                <input
-                  key={i}
-                  type="text"
-                  placeholder={`Lawan ${i + 1}`}
-                  value={inputPlayers[i]}
-                  onChange={e => updateName(i, e.target.value)}
-                  className="w-full p-3 rounded-md bg-white/10 text-white placeholder-white/50 focus:outline-none"
-                />
-              ))}
-            </div>
-
+            <h2 className="text-lg text-white mb-3 text-center">
+              Enter name for Player {currentPlayerIndex + 1}
+            </h2>
+            <input
+              type="text"
+              value={inputPlayers[currentPlayerIndex]}
+              onChange={e => updateName(currentPlayerIndex, e.target.value)}
+              placeholder={`Player ${currentPlayerIndex + 1} Name`}
+              className="w-full p-3 rounded-md bg-white/10 text-white placeholder-white/50 focus:outline-none"
+            />
             <div className="flex gap-2 mt-4">
-              <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={handleConfirm} className="flex-1 p-3 bg-green-500 text-white rounded-md font-semibold">Simpan Nama</motion.button>
-              <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={resetAll} className="p-3 bg-red-500 text-white rounded-md font-semibold">Reset</motion.button>
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={handlePlayerNameSubmit}
+                className="mt-4 w-full p-3 bg-green-500 text-white rounded-md font-semibold"
+              >
+                {currentPlayerIndex < 6 ? "Next" : "Predict!"}
+              </motion.button>
             </div>
           </motion.div>
         ) : (
