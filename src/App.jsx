@@ -270,12 +270,12 @@ export default function App() {
             Submit
           </button>
           <a
-            href="https://raw.githubusercontent.com/MrEuwn/mcgogov2/main/key"
+            href="https://link-center.net/1457518/gU0z4qcB00hg"
             target="_blank"
             rel="noopener noreferrer"
             className="block mt-4 text-center text-blue-300 hover:underline"
           >
-            View Key on GitHub
+            Doesn't have key? get it here !
           </a>
         </div>
       </div>
