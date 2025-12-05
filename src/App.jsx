@@ -172,8 +172,6 @@ export default function App() {
               <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={handleConfirm} className="flex-1 p-3 bg-green-500 text-white rounded-md font-semibold">Simpan Nama</motion.button>
               <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={resetAll} className="p-3 bg-red-500 text-white rounded-md font-semibold">Reset</motion.button>
             </div>
-
-            <div className="text-sm text-white/70 mt-3">Catatan: Babak 1 khusus: 1.1 creep, 1.2 player1, 1.3 player2, 1.4 player3, 1.5 fatebox.</div>
           </motion.div>
         ) : (
           <div className="grid grid-cols-1 gap-6">
@@ -217,7 +215,6 @@ export default function App() {
                 </ol>
               </div>
 
-              <div className="text-sm text-white/60 mt-3">Tip: jika 1.1 - 1.4 memang creep round, aktifkan Initial Creeps sebelum Start. Jika urutan yang saya bangun kurang tepat, jelaskan urutan pasti (contoh: ronde X harus lawan Y) supaya saya sesuaikan.</div>
 
               <div className="mt-4 text-sm text-white/70">{namesConfirmed ? "Nama pemain terdaftar: " + players.join(", ") : "Belum ada pemain"}</div>
             </div>
